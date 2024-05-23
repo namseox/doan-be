@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package ducph_user;
+
+import "commons.proto";
+import "device.proto";
+import "merchant_common.proto";
+import "booking.proto";
+
+import "google/protobuf/struct.proto";
+
+enum ELangNumber {
+  VI = 0;
+  EN = 1;
+}
+
+service UserService {
+  rpc find(commons.QueryRequest) returns (UserPagination) {}
+  rpc create(CreateUserRequest) returns (FindOneUser) {}
+  rpc findById(commons.Id) returns (NullableUser) {}
+  rpc findOne(commons.QueryRequest) returns (NullableUser) {}
+  rpc count(commons.QueryRequest) returns (commons.Count) {}
+  rpc update(UpdateUserInput) returns (FindOneUser) {}
+
+  rpc deleteCustomer(commons.Id) returns (commons.Count) {}
+
+  // device
+  rpc createDevice(device.CreateDeviceInput) returns (device.Device) {}
+  rpc findDevices(commons.QueryRequest) returns (device.Devices) {}
+  rpc upsertDevice(device.CreateDeviceInput) returns (device.Device) {}
+
+  rpc addOperator(AddOperatorInput) returns (FindOneUser) {}
+  rpc countCustomer(commons.QueryRequest) returns (commons.Count) {}
+
+  // customer
+  rpc findCustomers(commons.QueryRequest) returns (UserPagination) {}
+  rpc addCustomer(AddOperatorInput) returns (FindOneUser) {}
+  rpc updateCustomer(AdminUpdateCustomerInput) returns (FindOneUser) {}
+
+  rpc getUserStatisticsByRange(UserStatisticsByRangeRequest)
+      returns (UserStatisticsByRange) {}
+
+  rpc getBookingStatisticByYear(commons.QueryRequest)
+      returns (booking.Bookings) {}
+}
+
+message User {
+  // default field
+  int32 id = 1;
+  optional string createdAt = 2;
+  optional string updatedAt = 3;
+  optional string deletedAt = 4;
+  optional int32 createdBy = 5;
+  optional int32 updatedBy = 6;
+  optional int32 deletedBy = 7;
+
+  // reserved field
+  optional string email = 8;
+  optional string password = 9;
+  optional commons.EUserStatus status = 10;
+  optional string fullName = 11;
+  optional string subdomain = 12;
+  optional string phoneNumber = 13;
+  optional commons.EUserRole role = 17;
+  optional commons.EUserGender gender = 18;
+  optional string job = 19;
+  optional string avatar = 20;
+  optional string address = 21;
+  optional int32 branchId = 22;
+  optional int32 merchantId = 23;
+  optional ELangNumber lang = 24;
+  optional merchant_common.Branch branch = 25;
+  optional int32 age = 26;
+  optional merchant_common.Merchant merchant = 27;
+  optional double latitude = 28;
+  optional double longitude = 29;
+}
+
+message CreateUserInput {
+  optional string email = 1;
+  optional string password = 2;
+  optional commons.EUserStatus status = 3;
+  optional string fullName = 4;
+  optional string phoneNumber = 6;
+  optional commons.EUserRole role = 10;
+  optional commons.EUserGender gender = 11;
+  optional string occupation = 12;
+  optional string avatar = 13;
+  optional string address = 14;
+  optional string subdomain = 15;
+  optional string job = 16;
+  optional int32 age = 17;
+  optional int32 branchId = 33;
+  optional double latitude = 34;
+  optional double longitude = 35;
+  optional int32 merchantId = 36;
+  optional bool isRetailCustomer = 37;
+  optional ELangNumber lang = 38;
+}
+
+message CreateUserRequest {
+  CreateUserInput user = 1;
+  optional device.CreateDeviceInput device = 2;
+}
+
+message FindOneUser {
+  User user = 1;
+}
+
+message UpdateUserInput {
+  int32 id = 1;
+  UpdateUserData data = 2;
+}
+
+message NullableUser {
+  oneof kind {
+    google.protobuf.NullValue null = 1;
+    User user = 2;
+  }
+}
+
+message UpdateUserData {
+  oneof kind {
+    string email = 1;
+    string password = 2;
+    commons.EUserStatus status = 3;
+    string fullName = 4;
+    string phoneNumber = 6;
+    commons.EUserRole role = 10;
+    commons.EUserGender gender = 11;
+    string avatar = 13;
+    string address = 14;
+    int32 age = 15;
+    string job = 16;
+    int32 branchId = 17;
+    int32 merchantId = 18;
+    ELangNumber lang = 19;
+    double latitude = 20;
+    double longitude = 21;
+  }
+}
+
+message AddOperatorInput {
+  CreateUserInput user = 1;
+}
+
+message AdminUpdateCustomerInput {
+  int32 id = 1;
+  UpdateUserData user = 2;
+}
+
+message UserPagination {
+  repeated User items = 1;
+  optional commons.PageMeta meta = 2;
+}
+
+message UserStatisticsByRangeRequest {
+  int32 merchantId = 1;
+}
+
+message UserStatisticsByRange {
+  optional int32 range1 = 1;
+  optional int32 range2 = 2;
+  optional int32 range3 = 3;
+}

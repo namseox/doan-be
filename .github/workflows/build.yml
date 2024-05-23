@@ -1,0 +1,29 @@
+name: CI mihealthcare-admin
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - new-dev
+
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+
+    steps:
+      - name: SSH to host and Run Pm2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            cd misalon-capstone-project
+            export PATH="$PATH:/root/.nvm/versions/node/v16.20.0/bin"
+            /root/.nvm/versions/node/v16.20.0/bin/yarn start
